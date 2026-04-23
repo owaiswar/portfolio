@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { Menu, X, Github, Linkedin, Camera } from 'lucide-react';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,11 +16,24 @@ const Navbar = () => {
     { name: 'Contact', href: '#contact' },
   ];
 
+  // Load image from localStorage on mount
+  useEffect(() => {
+    const savedImg = localStorage.getItem('owais_profile_img');
+    if (savedImg) {
+      setProfileImg(savedImg);
+    }
+  }, []);
+
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const url = URL.createObjectURL(file);
-      setProfileImg(url);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result;
+        setProfileImg(base64String);
+        localStorage.setItem('owais_profile_img', base64String);
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -28,7 +41,7 @@ const Navbar = () => {
     <nav className="fixed top-0 left-0 w-full z-50 px-6 py-6 bg-gradient-to-b from-dark/80 to-transparent backdrop-blur-sm md:backdrop-blur-none">
       <div className="max-w-7xl mx-auto flex justify-between items-center">
         <div className="flex items-center gap-8">
-          {/* Profile Image Upload Field - Much Bigger */}
+          {/* Profile Image Upload Field - PERSISTENT */}
           <div 
             onClick={() => fileInputRef.current.click()}
             className="relative w-20 h-20 rounded-full border-2 border-primary overflow-hidden cursor-pointer group flex items-center justify-center bg-white/5 hover:border-primary transition-all duration-300 shadow-[0_0_25px_rgba(0,245,255,0.3)]"
